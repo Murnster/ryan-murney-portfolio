@@ -7,8 +7,8 @@
 		<meta name="robots" content="noindex">
 		<meta name="googlebot" content="noindex, nofollow">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/js/all.min.js" integrity="sha512-rpLlll167T5LJHwp0waJCh3ZRf7pO6IT1+LZOhAyP6phAirwchClbTZV3iqL3BMrVxIYRbzGTpli4rfxsCK6Vw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-		<script type="text/javascript" src="scripts/main.js?v=1.2"></script>
-		<link type="text/css" rel="stylesheet" href="css/index.css?v=1.2">
+		<script type="text/javascript" src="scripts/main.js?v=1.3"></script>
+		<link type="text/css" rel="stylesheet" href="css/index.css?v=1.3">
 		<link rel="shortcut icon" type="image/png" href="src/me.png">
 		<link rel="canonical" href="https://www.ryanmurney.ca/"/>
 	</head>
@@ -19,7 +19,7 @@
 				<div class="headerName" onclick="moveToPanel('home')">RYAN MURNEY</div>
 			</div>
 			<div class="headerHalf browserHeader">
-				<div class="headerItem clickCursor" onclick="moveToPanel('home')">HOME</div>
+				<div class="headerItem" onclick="moveToPanel('home')">HOME</div>
 				<div class="headerItem" onclick="moveToPanel('about')">ABOUT</div>
 				<div class="headerItem" onclick="moveToPanel('project')">PROJECTS</div>
 				<div class="headerItem" onclick="moveToPanel('contact')">CONTACT</div>
@@ -98,36 +98,49 @@
 					<div class="murneyDivider"></div>
 					<div class="panelSubtitle">Here you will see some of the projects I have worked on to develop my skills along with some details about each one. Click on the project image if you'd like to take a look!</div>
 				</div>
-				<div class="projectRow">
-					<div class="projectImg" onclick="window.open('https://catany.onrender.com/', '_blank')">
-						<img src="src/catanmock.png" alt="Catany project image">
+				<div class="carousel-container">
+					<div class="carousel-arrow left-arrow" onclick="moveCarousel(-1)">
+						<i class="fa-solid fa-chevron-left fa-2x"></i>
 					</div>
-					<div class="projectDesc">
-						<h3 class="aboutBodyHeader">Catany: Catan Board Generator</h3>
-						<br><br class="browserBr">
-						<div class="aboutBodyContent">Catany is a Catan Board Generator was one of my first projects, that builds a board for the game Settlers of Catan. It allows players to generate a fully randomized board or choose options to build a board for Catan players to play the game in new unique ways.</div>
+					<div class="carousel-track-container">
+						<div class="carousel-track">
+							<div class="projectRow">
+								<div class="projectImg" onclick="window.open('https://catany.onrender.com/', '_blank')">
+									<img src="src/catanmock.png" alt="Catany project image">
+								</div>
+								<div class="projectDesc">
+									<h3 class="aboutBodyHeader">Catany: Catan Board Generator</h3>
+									<br><br class="browserBr">
+									<div class="aboutBodyContent">Catany is a Catan Board Generator was one of my first projects, that builds a board for the game Settlers of Catan. It allows players to generate a fully randomized board or choose options to build a board for Catan players to play the game in new unique ways.</div>
+								</div>
+							</div>
+							<div class="projectRow">
+								<div class="projectImg" onclick="window.open('https://murnster.github.io/SimpleSport/', '_blank')">
+									<img src="src/simplesportmock.png" alt="SimpleSport project image">
+								</div>
+								<div class="projectDesc">
+									<h3 class="aboutBodyHeader">SimpleSport</h3>
+									<br><br class="browserBr">
+									<div class="aboutBodyContent">SimpleSport is a sports team management web application I built for the Capstone Project of my degree. I used popular technologies such as React and Express in order to create it to expand my skill set.</div>
+								</div>
+							</div>
+							<div class="projectRow">
+								<div class="projectImg" onclick="window.open('https://murnster.github.io/demosite-one/', '_blank')">
+									<img src="src/lakeviewmock.png" alt="Lakeview Company project image">
+								</div>
+								<div class="projectDesc">
+									<h3 class="aboutBodyHeader">Company Demo</h3>
+									<br><br class="browserBr">
+									<div class="aboutBodyContent">This project is a simple demo showing how I help your small business create a strong online presense. The demo does not have any functionality as it was built to represent a clean and responsive design. Contact me if you need a website that can grow your business!</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="carousel-arrow right-arrow" onclick="moveCarousel(1)">
+						<i class="fa-solid fa-chevron-right fa-2x"></i>
 					</div>
 				</div>
-				<div class="projectRow">
-					<div class="projectImg" onclick="window.open('https://murnster.github.io/SimpleSport/', '_blank')">
-						<img src="src/simplesportmock.png" alt="SimpleSport project image">
-					</div>
-					<div class="projectDesc">
-						<h3 class="aboutBodyHeader">SimpleSport</h3>
-						<br><br class="browserBr">
-						<div class="aboutBodyContent">SimpleSport is a sports team management web application I built for the Capstone Project of my degree. I used popular technologies such as React and Express in order to create it to expand my skill set.</div>
-					</div>
-				</div>
-				<div class="projectRow">
-					<div class="projectImg" onclick="window.open('https://murnster.github.io/demosite-one/', '_blank')">
-						<img src="src/lakeviewmock.png" alt="Lakeview Company project image">
-					</div>
-					<div class="projectDesc">
-						<h3 class="aboutBodyHeader">Company Demo</h3>
-						<br><br class="browserBr">
-						<div class="aboutBodyContent">This project is a simple demo showing how I help your small business create a strong online presense. The demo does not have any functionality as it was built to represent a clean and responsive design. Contact me if you need a website that can grow your business!</div>
-					</div>
-				</div>
+				<div class="carousel-indicators" id="carouselIndicators"></div>
 			</div>
 			<div id="contact">
 				<div class="panelHeader">

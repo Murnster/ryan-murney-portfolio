@@ -1,3 +1,6 @@
+let currentSlide = 0;
+let slides = [];
+
 function init() {
 	let margin = 100;
 	
@@ -7,11 +10,63 @@ function init() {
 		document.getElementById('home').style.height = `${window.innerHeight - margin}px`;
 	}
 
+	// Carousel setup
+	slides = document.querySelectorAll('.carousel-track .projectRow');
+	if (slides.length > 0) {
+		setupCarouselIndicators();
+		updateCarousel();
+	}
+
 	setTimeout(() => {
 		window.scrollTo({ 
 			top: 0
 		});
 	}, 200);
+}
+
+function setupCarouselIndicators() {
+	const indicatorsContainer = document.getElementById('carouselIndicators');
+	indicatorsContainer.innerHTML = '';
+	
+	slides.forEach((_, index) => {
+		const dot = document.createElement('div');
+		dot.classList.add('indicator-dot');
+		if (index === currentSlide) dot.classList.add('active');
+		dot.onclick = () => setSlide(index);
+		indicatorsContainer.appendChild(dot);
+	});
+}
+
+function moveCarousel(direction) {
+	currentSlide += direction;
+	
+	if (currentSlide >= slides.length) {
+		currentSlide = 0;
+	} else if (currentSlide < 0) {
+		currentSlide = slides.length - 1;
+	}
+	
+	updateCarousel();
+}
+
+function setSlide(index) {
+	currentSlide = index;
+	updateCarousel();
+}
+
+function updateCarousel() {
+	const track = document.querySelector('.carousel-track');
+	const percentage = -(currentSlide * 100);
+	track.style.transform = `translateX(${percentage}%)`;
+	
+	const dots = document.querySelectorAll('.indicator-dot');
+	dots.forEach((dot, index) => {
+		if (index === currentSlide) {
+			dot.classList.add('active');
+		} else {
+			dot.classList.remove('active');
+		}
+	});
 }
 
 function moveToPanel(panel, isMobile) {
@@ -48,10 +103,6 @@ function goToLink(url) {
 		url = 'https://github.com/Murnster';
 	} else if (url == 'linkedin') {
 		url = 'https://www.linkedin.com/in/ryanmurney/';
-	} else if (url == 'simplesport') {
-		url = 'https://murnster.github.io/SimpleSport/';
-	} else if (url == 'catan') {
-		url = 'https://murnster.github.io/Web-Catan-Board/';
 	}
 
 	window.open(url, '_blank');
@@ -91,10 +142,13 @@ async function sendEmail() {
 		toast(null);
 	} else if (email.value == '') {
 		email.focus();
+		toast(null);
 	} else if (phone.value == '') {
 		phone.focus();
+		toast(null);
 	} else if (message.value == '') {
 		message.focus();
+		toast(null);
 	} else {
 		if (cleanTrolls(name.value + ' ' + email.value + ' ' + phone.value + ' ' + message.value)) {
 			await fetch('/email', {
