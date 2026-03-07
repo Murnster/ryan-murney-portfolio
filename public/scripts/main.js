@@ -1,5 +1,7 @@
-let currentSlide = 0;
+let currentSlide = 1;
 let slides = [];
+let totalRealSlides = 0;
+let isTransitioning = false;
 
 function init() {
 	let margin = 100;
@@ -11,10 +13,41 @@ function init() {
 	}
 
 	// Carousel setup
-	slides = document.querySelectorAll('.carousel-track .projectRow');
-	if (slides.length > 0) {
+	const track = document.querySelector('.carousel-track');
+	const originalSlides = document.querySelectorAll('.carousel-track .projectRow');
+	
+	if (originalSlides.length > 0) {
+		totalRealSlides = originalSlides.length;
+		
+		// Clone first and last slides
+		const firstClone = originalSlides[0].cloneNode(true);
+		const lastClone = originalSlides[originalSlides.length - 1].cloneNode(true);
+		
+		// Add clones to track
+		track.appendChild(firstClone);
+		track.insertBefore(lastClone, originalSlides[0]);
+		
+		// Update slides list
+		slides = document.querySelectorAll('.carousel-track .projectRow');
+		
+		// Initial positioning (start at first real slide)
+		track.style.transform = `translateX(-100%)`;
+		
 		setupCarouselIndicators();
-		updateCarousel();
+		
+		// Add transition end listener for infinite loop jump
+		track.addEventListener('transitionend', () => {
+			isTransitioning = false;
+			if (currentSlide >= slides.length - 1) {
+				track.style.transition = "none";
+				currentSlide = 1;
+				track.style.transform = `translateX(-${currentSlide * 100}%)`;
+			} else if (currentSlide <= 0) {
+				track.style.transition = "none";
+				currentSlide = slides.length - 2;
+				track.style.transform = `translateX(-${currentSlide * 100}%)`;
+			}
+		});
 	}
 
 	setTimeout(() => {
@@ -28,45 +61,56 @@ function setupCarouselIndicators() {
 	const indicatorsContainer = document.getElementById('carouselIndicators');
 	indicatorsContainer.innerHTML = '';
 	
-	slides.forEach((_, index) => {
+	for (let i = 0; i < totalRealSlides; i++) {
 		const dot = document.createElement('div');
 		dot.classList.add('indicator-dot');
-		if (index === currentSlide) dot.classList.add('active');
-		dot.onclick = () => setSlide(index);
+		if (i === 0) dot.classList.add('active'); // Start at first real slide
+		dot.onclick = () => setSlide(i);
 		indicatorsContainer.appendChild(dot);
-	});
+	}
 }
 
 function moveCarousel(direction) {
+	if (isTransitioning) return;
+	
+	const track = document.querySelector('.carousel-track');
+	isTransitioning = true;
+	track.style.transition = "transform 0.5s ease-in-out";
 	currentSlide += direction;
-	
-	if (currentSlide >= slides.length) {
-		currentSlide = 0;
-	} else if (currentSlide < 0) {
-		currentSlide = slides.length - 1;
-	}
-	
-	updateCarousel();
+	track.style.transform = `translateX(-${currentSlide * 100}%)`;
+	updateIndicators();
 }
 
 function setSlide(index) {
-	currentSlide = index;
-	updateCarousel();
+	if (isTransitioning) return;
+	
+	const track = document.querySelector('.carousel-track');
+	isTransitioning = true;
+	track.style.transition = "transform 0.5s ease-in-out";
+	currentSlide = index + 1; // Adjust for clone
+	track.style.transform = `translateX(-${currentSlide * 100}%)`;
+	updateIndicators();
 }
 
-function updateCarousel() {
-	const track = document.querySelector('.carousel-track');
-	const percentage = -(currentSlide * 100);
-	track.style.transform = `translateX(${percentage}%)`;
-	
+function updateIndicators() {
 	const dots = document.querySelectorAll('.indicator-dot');
+	let realIndex = currentSlide - 1;
+	
+	// Handle clone indices for indicators
+	if (currentSlide === 0) realIndex = totalRealSlides - 1;
+	if (currentSlide === slides.length - 1) realIndex = 0;
+	
 	dots.forEach((dot, index) => {
-		if (index === currentSlide) {
+		if (index === realIndex) {
 			dot.classList.add('active');
 		} else {
 			dot.classList.remove('active');
 		}
 	});
+}
+
+function updateCarousel() {
+	// Deprecated in favor of direct updates in move/set functions for better control over transition
 }
 
 function moveToPanel(panel, isMobile) {

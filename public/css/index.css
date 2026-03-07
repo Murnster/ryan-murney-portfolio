@@ -642,10 +642,6 @@ body {
 		font-size: 18px;
 	}
 
-	.browserBr {
-		display: none;
-	}
-
 	.browserHeader {
 		display: none !important;
 	}
@@ -805,10 +801,6 @@ body {
 		font-size: 18px;
 	}
 
-	.browserBr {
-		display: none;
-	}
-
 	.browserHeader {
 		display: none !important;
 	}
@@ -966,10 +958,6 @@ body {
 	.header {
 		height: 100px;
 		font-size: 20px;
-	}
-
-	.browserBr {
-		display: block;
 	}
 
 	.browserHeader {
