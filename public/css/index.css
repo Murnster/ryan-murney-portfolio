@@ -66,7 +66,7 @@ body {
 	font-size: 20px;
 	font-weight: bold;
 	background: white;
-	z-index: 2;
+	z-index: 100;
 }
 
 .headerHalf {
@@ -115,7 +115,7 @@ body {
 	width: 100%;
 	background: white;
 	flex-direction: column;
-	z-index: 100;
+	z-index: 99;
 	transform: translateY(-100%);
 	opacity: 0;
 	visibility: hidden;
@@ -215,6 +215,10 @@ body {
 	border: none;
 	color: white;
 	transition: all 0.2s ease-in-out;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
 }
 
 .homePanelBtn:hover {
@@ -1207,9 +1211,10 @@ body {
 	user-select: none;
 	width: 7.5%;
 	-webkit-tap-highlight-color: transparent;
+	outline: none;
 }
 
-.carousel-arrow:hover {
+.carousel-arrow:active {
 	color: var(--primary);
 }
 

@@ -1,16 +1,15 @@
 let currentSlide = 0;
 let totalRealSlides = 0;
+let isMoving = false;
+let isSending = false;
+const toastTimers = {};
 
 function init() {
-	let margin = 100;
-	
-	if (window.screen.width <= 600) {
-		margin = 70;
-	} else if (window.screen.width > 992) {
-		const homeElement = document.getElementById('home');
-		if (homeElement) {
-			homeElement.style.height = `${window.innerHeight - margin}px`;
-		}
+	let margin = window.innerWidth <= 600 ? 70 : 100;
+
+	const homeElement = document.getElementById('home');
+	if (homeElement && window.innerWidth > 992) {
+		homeElement.style.height = `${window.innerHeight - margin}px`;
 	}
 
 	// Carousel setup
@@ -21,17 +20,49 @@ function init() {
 		totalRealSlides = slidesElements.length;
 		setupCarouselIndicators();
 		
-		// Update indicators on scroll with a slight debounce/throttle
-		let isScrolling;
+		// Clone first and last slides for infinite effect
+		const firstClone = slidesElements[0].cloneNode(true);
+		const lastClone = slidesElements[totalRealSlides - 1].cloneNode(true);
+		
+		track.appendChild(firstClone);
+		track.insertBefore(lastClone, slidesElements[0]);
+		
+		// Set initial position to the first real slide
+		track.scrollLeft = track.clientWidth;
+		currentSlide = 0;
+		updateIndicators();
+
+		// Handle infinite scroll jump and indicator updates
 		track.addEventListener('scroll', () => {
-			window.clearTimeout(isScrolling);
-			isScrolling = setTimeout(() => {
-				const index = Math.round(track.scrollLeft / track.clientWidth);
-				if (index !== currentSlide) {
-					currentSlide = index;
-					updateIndicators();
-				}
-			}, 50);
+			const scrollPos = track.scrollLeft;
+			const itemWidth = track.clientWidth;
+			
+			const epsilon = itemWidth * 0.05;
+			if (scrollPos < epsilon) { // Near 0 — on last clone, jump to last real slide
+				track.style.scrollBehavior = 'auto';
+				track.scrollLeft = totalRealSlides * itemWidth;
+				track.style.scrollBehavior = 'smooth';
+				updateIndicators();
+				return;
+			} else if (scrollPos > (totalRealSlides + 1) * itemWidth - epsilon) { // On first clone, jump to first real slide
+				track.style.scrollBehavior = 'auto';
+				track.scrollLeft = itemWidth;
+				track.style.scrollBehavior = 'smooth';
+				updateIndicators();
+				return;
+			}
+
+			const index = Math.round(scrollPos / itemWidth) - 1;
+			if (index >= 0 && index < totalRealSlides && index !== currentSlide) {
+				currentSlide = index;
+				updateIndicators();
+			}
+		});
+
+		window.addEventListener('resize', () => {
+			track.style.scrollBehavior = 'auto';
+			track.scrollLeft = (currentSlide + 1) * track.clientWidth;
+			track.style.scrollBehavior = 'smooth';
 		});
 	}
 
@@ -58,30 +89,42 @@ function setupCarouselIndicators() {
 
 function moveCarousel(direction) {
 	const track = document.querySelector('.carousel-track');
-	if (!track) return;
+	if (!track || isMoving) return;
 
-	currentSlide += direction;
-	
-	if (currentSlide < 0) currentSlide = totalRealSlides - 1;
-	if (currentSlide >= totalRealSlides) currentSlide = 0;
-	
+	isMoving = true;
+	const itemWidth = track.clientWidth;
+	const targetScrollPos = (currentSlide + direction + 1) * itemWidth;
+
+	currentSlide = ((currentSlide + direction) + totalRealSlides) % totalRealSlides;
+	updateIndicators();
+
 	track.scrollTo({
-		left: currentSlide * track.clientWidth,
+		left: targetScrollPos,
 		behavior: 'smooth'
 	});
-	updateIndicators();
+
+	let released = false;
+	const release = () => { if (!released) { released = true; isMoving = false; } };
+	track.addEventListener('scrollend', release, { once: true });
+	setTimeout(release, 800);
 }
 
 function setSlide(index) {
 	const track = document.querySelector('.carousel-track');
-	if (!track) return;
+	if (!track || isMoving) return;
 
+	isMoving = true;
 	currentSlide = index;
 	track.scrollTo({
-		left: currentSlide * track.clientWidth,
+		left: (currentSlide + 1) * track.clientWidth,
 		behavior: 'smooth'
 	});
 	updateIndicators();
+
+	let released = false;
+	const release = () => { if (!released) { released = true; isMoving = false; } };
+	track.addEventListener('scrollend', release, { once: true });
+	setTimeout(release, 800);
 }
 
 function updateIndicators() {
@@ -96,15 +139,13 @@ function updateIndicators() {
 }
 
 function moveToPanel(panel, isMobile) {
-	const element = document.getElementById(panel).offsetTop;
-	let margin = 100;
+	const element = document.getElementById(panel);
+	if (!element) return;
+	const offsetTop = element.offsetTop;
+	const margin = window.innerWidth < 992 ? 70 : 100;
 
-	if (window.screen.width < 992) {
-		margin = 70;
-	}
-
-	window.scrollTo({ 
-		top: element - margin,
+	window.scrollTo({
+		top: offsetTop - margin,
 		behavior: 'smooth'
 	});
 
@@ -140,14 +181,15 @@ function toast(success) {
 
 	if (!toastElement) return;
 
+	clearTimeout(toastTimers[toastElement.id]);
 	toastElement.setAttribute('active', '');
 
-	const toastTimeout = setTimeout(() => {
+	toastTimers[toastElement.id] = setTimeout(() => {
 		toastElement.removeAttribute('active');
 	}, 7500);
 
 	toastElement.onclick = function() {
-		clearTimeout(toastTimeout);
+		clearTimeout(toastTimers[toastElement.id]);
 		toastElement.removeAttribute('active');
 	}
 }
@@ -166,6 +208,8 @@ async function sendEmail() {
 	const fullText = `${name.value} ${email.value} ${phone.value} ${message.value}`;
 	
 	if (cleanTrolls(fullText)) {
+		if (isSending) return;
+		isSending = true;
 		try {
 			const res = await fetch('/email', {
 				method: 'POST',
@@ -180,12 +224,15 @@ async function sendEmail() {
 					message: message.value
 				})
 			});
+			if (!res.ok) throw new Error(`Server error: ${res.status}`);
 			const data = await res.json();
 			console.log(data);
 			toast(true);
 		} catch (error) {
 			console.error(error);
 			toast(false);
+		} finally {
+			isSending = false;
 		}
 	} else {
 		toast(null);
@@ -193,8 +240,8 @@ async function sendEmail() {
 }
 
 function cleanTrolls(string) {
-	const words = string.toLowerCase().split(' ');
-	if (string.toLowerCase().includes('aunt sum')) return false;
+	const words = string.toLowerCase().split(/\s+/);
+	if (words.includes('aunt') && words.includes('sum')) return false;
 	if (words.includes('sum') || words.includes('bahd')) return false;
 	return true;
 }
