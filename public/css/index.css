@@ -258,7 +258,7 @@ body {
 }
 
 .projectImg {
-	width: 35%;
+	width: 45%;
 	padding: 2%;
 	border-radius: 10px;
 	cursor: pointer;
@@ -271,7 +271,7 @@ body {
 }
 
 .projectDesc {
-	width: 35%;
+	width: 45%;
 	padding: 10px;
 }
 
