@@ -285,6 +285,7 @@ body {
 	flex-direction: row;
 	flex-wrap: wrap;
 	text-align: center;
+	justify-content: center;
 }
 
 .aboutSkillItem {
@@ -607,6 +608,7 @@ body {
 		margin-top: 20px;
 		width: 100%;
 		padding: 10px;
+		box-sizing: border-box;
 	}
 
 	.projectRow {
@@ -774,6 +776,7 @@ body {
 		margin-top: 20px;
 		width: 100%;
 		padding: 10px;
+		box-sizing: border-box;
 	}
 
 	.projectRow {
@@ -924,6 +927,7 @@ body {
 		margin-top: 20px;
 		width: 100%;
 		padding: 10px;
+		box-sizing: border-box;
 	}
 
 	.projectRow {
