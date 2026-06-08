@@ -27,7 +27,7 @@ Here are a few projects I've worked on:
 
 This website serves as a central hub for my projects and resume. It is built to be simple, fast, and responsive.
 
-*   **Backend:** Node.js & Express
+*   **Backend:** Cloudflare Pages Function for contact email
 *   **Frontend:** Vanilla HTML, CSS, and JavaScript
 *   **Features:** Custom smooth-scrolling navigation, responsive mobile design, and a contact form integrated with EmailJS.
 
