@@ -13,6 +13,14 @@ function missingEmailConfig(env) {
 	return ['SERVICE_ID', 'TEMPLATE_ID', 'PUBLIC_KEY', 'PRIVATE_KEY'].filter((key) => !env[key]);
 }
 
+function isDebugEnabled(env) {
+	return env.DEBUG_EMAILJS === 'true';
+}
+
+function sanitizeProviderDetails(details) {
+	return details.replace(/[A-Za-z0-9_-]{20,}/g, '[redacted]');
+}
+
 export async function onRequestPost({ request, env }) {
 	const missing = missingEmailConfig(env);
 	if (missing.length > 0) {
@@ -43,7 +51,18 @@ export async function onRequestPost({ request, env }) {
 
 	if (!emailResponse.ok) {
 		const details = await emailResponse.text();
-		console.error(`EmailJS failed with ${emailResponse.status}: ${details}`);
+		const safeDetails = sanitizeProviderDetails(details);
+		console.error(`EmailJS failed with ${emailResponse.status}: ${safeDetails}`);
+		
+		if (isDebugEnabled(env)) {
+			return jsonResponse({
+				message: 'Email failed to send',
+				provider: 'EmailJS',
+				providerStatus: emailResponse.status,
+				providerDetails: safeDetails
+			}, 502);
+		}
+		
 		return jsonResponse({ message: 'Email failed to send' }, 502);
 	}
 

@@ -466,7 +466,7 @@ body {
 	right: 20px;
 	height: 100px;
 	width: 30%;
-	z-index: 9;
+	z-index: 101;
 	background: white;
 	align-items: center;
 	border-radius: 12px;
